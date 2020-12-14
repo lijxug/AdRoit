@@ -28,7 +28,7 @@ RNA sequencing technology promises an unprecedented opportunity in learning dise
 ### Installation:
 1. Install from Github:
 ```
-devtools::install_github("TaoYang-dev/AdRoit")
+devtools::install_github("TaoYang-dev/AdRoit/AdRoit")
 ```
 
 2. Install from source
