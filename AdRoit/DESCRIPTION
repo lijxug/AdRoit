@@ -1,0 +1,25 @@
+Package: AdRoit
+Type: Package
+Title: An accurate and robust method to infer complex transcriptome composition
+Version: 0.1.0
+Author: Tao Yang
+Maintainer: The package maintainer <tao.yang@regeneron.com>
+Description: AdRoit is an accurate and robust method to infer transcriptome composition including bulk transcriptomics and spatial transcriptomics. The method estimates the proportions of each cell type in the compound RNA-seq data using known single cell data of relevant cell types. It uniquely uses an adaptive learning approach to correct the bias gene-wise due to the difference in sequencing techniques. AdRoit also utilizes cell type specific genes while control their cross-sample variability. Our systematic benchmarking, spanning from simple to complex tissues, shows that AdRoit has superior sensitivity and specificity compared to other existing methods. Its performance holds for multiple single cell and compound RNA-seq platforms. In addition, AdRoit is computationally efficient and runs one to two orders of magnitude faster than some of the state-of-the-art methods.
+Depends: R (>= 3.5)
+Imports: Seurat (>= 3.0.1),
+          fitdistrplus,
+          nnls,
+          reshape2,
+          utils,
+          stats,
+          dplyr, 
+          data.table, 
+          matrixStats, 
+          doParallel,
+          parallel,
+          foreach, 
+          ggplot2
+License: GPL (>= 2.0)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
