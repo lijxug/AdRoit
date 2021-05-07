@@ -16,50 +16,42 @@
 synthesize.bulk <- function(counts, annotations, SampleID, prop = "original"){
 
   clusters = unique(sort(annotations))
-  if (class(counts) == "dgCMatrix"){
-      counts = as.data.frame(counts)
-  }
-
-  if (prop == "original"){
+  if (prop == "original") {
     s.SCcounts = counts
     s.annotations = annotations
     s.SampleID = SampleID
-
-  } else if (length(prop) == length(clusters) & sum(prop) == 1) {
+  } else if (length(prop) == length(clusters) & sum(prop) ==
+             1) {
     N = ncol(counts)
-    ns = round(prop*N)
-
+    ns = round(prop * N)
     sampled.cells <- NULL
-    for (i in 1:length(ns)){
-      cluster.cells = colnames(counts)[which(annotations == clusters[i])]
-      sampled.cells = c(sampled.cells, sample(cluster.cells, ns, replace = T))
+    for (i in 1:length(ns)) {
+      cluster.cells = colnames(counts)[which(annotations ==
+                                               clusters[i])]
+      sampled.cells = c(sampled.cells, sample(cluster.cells,
+                                              ns, replace = T))
     }
-
     s.SCcounts = counts[, sampled.cells]
-    s.annotations = annotations[which(colnames(counts) %in% sampled.cells)]
+    s.annotations = annotations[which(colnames(counts) %in%
+                                        sampled.cells)]
     s.SampleID = SampleID[which(colnames(counts) %in% sampled.cells)]
-
   } else {
-    message("prop needs to be either \"original\" or a vector of length
-        	equal to number of cluster and sums to 1" )
+    message("prop needs to be either \"original\" or a vector of length\n        
+            \tequal to number of cluster and sums to 1")
   }
 
-  tsingle = as.data.frame(transpose(s.SCcounts))
-  tsingle$SampleID = s.SampleID
-  tsingle$cluster = s.annotations
+  simbulk <- NULL
+  for (i in unique(s.SampleID)){
+    idx = which(s.SampleID == i)
+    simbulk <- cbind(simbulk, rowSums(s.SCcounts[,idx]))
+  }
 
-  simbulk = tsingle %>% group_by(SampleID) %>%
-    summarise_if(is.numeric, sum) %>% transpose()
-  colnames(simbulk) = simbulk[1,]
-  simbulk = apply(simbulk[-1,],2, as.numeric)
+  count.table = table(s.SampleID, s.annotations) %>% as.data.frame.matrix() %>%
+    t()
+  prop.table = sweep(count.table, 2, colSums(count.table),
+                     `/`)
   rownames(simbulk) = rownames(counts)
-
-
-  # compute the real proportion
-  count.table = table(s.SampleID, s.annotations) %>%
-    as.data.frame.matrix() %>% t()
-  prop.table = sweep(count.table, 2, colSums(count.table), `/`)
-  rownames(simbulk) = rownames(counts)
-
+  colnames(simbulk) = unique(s.SampleID)
   return(list(simbulk, prop.table, count.table))
 }
+
