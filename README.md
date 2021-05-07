@@ -32,9 +32,9 @@ devtools::install_github("TaoYang-dev/AdRoit/AdRoit")
 ```
 
 2. Install from source
-Download the source code `AdRoit_0.1.0.tar.gz` and install it in R:
+Download the source code `AdRoit_0.2.0.tar.gz` and install it in R:
 ```
-install.packages("/PATH/TO/AdRoit_0.1.0.tar.gz", repo = NULL, type = "source")
+install.packages("/PATH/TO/AdRoit_0.2.0.tar.gz", repo = NULL, type = "source")
 ```
 
 ## Tutorial
