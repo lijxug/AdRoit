@@ -24,26 +24,19 @@
 #' @export
 
 ref.build <- function(counts,
-                      annotations,
-                      genes,
-                      samples = NULL,
-                      normalize = "None",
-                      scale.factor = 1e+05,
-                      multi.sample.bulk = TRUE,
-                      multi.sample.single  = TRUE,
-                      silent = FALSE){
-  if (class(counts) == "dgCMatrix"){
-    counts = as.matrix(counts)
-  }
+                       annotations,
+                       genes,
+                       samples = NULL,
+                       normalize = "None",
+                       scale.factor = 1e+05,
+                       multi.sample.bulk = TRUE,
+                       multi.sample.single = TRUE,
+                       silent = FALSE){
 
-  # Calculate the number of cores
   no_cores <- detectCores() - 1
-  # Initiate cluster
   registerDoParallel(no_cores)
-
   negbin.par <- list()
   cell.types = unique(sort(annotations))
-
   for (c in cell.types) {
     cells.id = colnames(counts)[which(annotations == c)]
     if (normalize == "Total") {
@@ -59,7 +52,6 @@ ref.build <- function(counts,
       message("normalize has to be one of Total, Median and None")
     }
 
-
     if (silent == FALSE) {
       message(paste("Estimate means and dispersions for cell type",
                     c, sep = ": "))
@@ -68,11 +60,8 @@ ref.build <- function(counts,
     negbin.par[[c]] <- foreach(i = genes, .combine = rbind) %dopar%
       negbin.est(temp[i, ])
     rownames(negbin.par[[c]]) = genes
-
     rm(temp)
   }
-
-  # reformat outout
   mus <- sizes <- NULL
   for (i in 1:length(negbin.par)) {
     mus = cbind(mus, negbin.par[[i]][, 2])
@@ -80,39 +69,28 @@ ref.build <- function(counts,
   }
   vars = mus + mus^2/sizes
   colnames(mus) = colnames(sizes) = cell.types
-
-
-  # get cell type specificity weight
   midx = apply(mus, 1, which.max)
   w0 <- NULL
-  for (i in 1:length(midx)){
+  for (i in 1:length(midx)) {
     w0 = c(w0, mus[i, midx[i]]/vars[i, midx[i]])
   }
   w0[which(is.na(w0) | is.infinite(w0))] = 0
-
-  # learn cross-subject variation if multiple bulks are not available
   if (multi.sample.bulk == TRUE) {
     ref.est = list(mus = mus, lambda = sizes, cell.specificity.w = w0)
   } else {
-    if (multi.sample.single == TRUE){
-
-      if (is.null(samples)){
+    if (multi.sample.single == TRUE) {
+      if (is.null(samples)) {
         stop("Please provide sample ID for each cell.")
       }
-
       sid = samples
     } else {
-      # if single cells is from one sample, random sampling
-      # cells to get artifical multi-samples
-
       nc = ncol(counts)
       subn = floor(nc/10)
-
       idx = NULL
       vc = seq_len(nc)
-      sid = rep("N", 10*subn)
-      for (i in 1:10){
-        if (i == 10){
+      sid = rep("N", 10 * subn)
+      for (i in 1:10) {
+        if (i == 10) {
           sid[vc] = paste("sample", i, sep = "_")
         } else {
           idx = sample(vc, subn, replace = F)
@@ -121,19 +99,14 @@ ref.build <- function(counts,
         }
       }
     }
-
     single.pool = synthesize.bulk(counts, annotations, SampleID = sid)
-    smv = foreach(i = genes, .combine = rbind) %dopar%
-              negbin.est(single.pool[[1]][i, ])
+    smv = foreach(i = genes, .combine = rbind) %dopar% negbin.est(single.pool[[1]][i,
+    ])
     rownames(smv) = genes
     subv = smv[, 2] * (1 + smv[, 2]/smv[, 1])
-
-    ref.est = list(mus = mus, lambda = sizes,
-                   cell.specificity.w = w0, cross.sample.w = subv)
+    ref.est = list(mus = mus, lambda = sizes, cell.specificity.w = w0,
+                   cross.sample.w = subv)
   }
-
-  ## stop nodes ##
   stopImplicitCluster()
-
   return(ref.est)
 }
