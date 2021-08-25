@@ -40,14 +40,14 @@ ref.build <- function(counts,
   for (c in cell.types) {
     cells.id = colnames(counts)[which(annotations == c)]
     if (normalize == "Total") {
-      temp = round(scale.factor * (sweep(counts[, cells.id],
-                                         2, colSums(counts[, cells.id]), `/`)))
+      temp = round(scale.factor * (sweep(counts[, cells.id, drop = F],
+                                         2, colSums(counts[, cells.id, drop = F]), `/`)))
     } else if (normalize == "Median") {
       medcnt = median(colSums(counts[, cells.id]))
-      temp = round(medcnt * (sweep(counts[, cells.id],
-                                   2, colSums(counts[, cells.id]), `/`)))
+      temp = round(medcnt * (sweep(counts[, cells.id, drop = F],
+                                   2, colSums(counts[, cells.id, drop = F]), `/`)))
     } else if (normalize == "None") {
-      temp = counts[, cells.id]
+      temp = counts[, cells.id, drop = F]
     } else {
       message("normalize has to be one of Total, Median and None")
     }
