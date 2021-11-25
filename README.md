@@ -1,7 +1,6 @@
 This is simply a fork repo from Tao Yang. According to the paper 
 Yang, T., Alessandri-Haber, N., Fury, W. et al. AdRoit is an accurate and robust method to infer complex transcriptome composition. Commun Biol 4, 1218 (2021). https://doi.org/10.1038/s42003-021-02739-1
-
-The latest version of AdRoit can be found [here](https://doi.org/10.5281/zenodo.5272308). The github repo is unreachable somehow.
+The latest version of AdRoit can be found [here](https://doi.org/10.5281/zenodo.5272308). The official github repo is unreachable somehow.
 
 ---
 
